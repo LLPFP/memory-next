@@ -1,14 +1,14 @@
-import Header from "../misComponentes/Header";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Home() {
-  return (
-    <div>
-      <header>
-        <Header></Header>
-      </header>
-      <main>
-        <h1></h1>
-      </main>
-      <footer></footer>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/home");
+  }, [router]);
+
+  return <div></div>;
 }

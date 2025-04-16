@@ -4,29 +4,113 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
-export default function Header() {
+export default function Encabezado() {
+  const router = useRouter();
+  const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  const [haHechoScroll, setHaHechoScroll] = useState(false);
+
+  useEffect(() => {
+    const manejarScroll = () => setHaHechoScroll(window.scrollY > 50);
+    window.addEventListener("scroll", manejarScroll);
+    return () => window.removeEventListener("scroll", manejarScroll);
+  }, []);
+
   return (
-    <div className=" mx-auto px-4 py-6 border-b bg-red-200">
-      <div className="flex items-center justify-center p-2 ">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink className="text-3xl">Home</NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink className="text-3xl">
-                Juego
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink className="text-3xl">
-                Acerca
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>{" "}
-    </div>
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full bg-gradient-to-r from-rose-500/5 via-fuchsia-500/5 to-purple-500/5 backdrop-blur-lg transition-all duration-300",
+        haHechoScroll
+          ? "shadow-xl border-b border-white/10"
+          : "border-b border-transparent"
+      )}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
+        {/* Logo animado */}
+        <div
+          onClick={() => router.push("/")}
+          className="flex items-center space-x-2 group cursor-pointer">
+          <span className="text-3xl transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+            🃏
+          </span>
+          <span className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
+            Juego de Memoria
+          </span>
+        </div>
+
+        {/* escritorio */}
+        <nav className="hidden md:block">
+          <NavigationMenu>
+            <NavigationMenuList className="flex space-x-4">
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  onClick={() => router.push("/")}
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  <span className="relative z-10">Inicio</span>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  onClick={() => router.push("/juego")}
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  <span className="relative z-10">Juegos</span>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  onClick={() => router.push("/acerca")}
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  <span className="relative z-10">Acerca</span>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </nav>
+
+        {/* Botón móvil */}
+        <button
+          className="md:hidden p-2 rounded-xl transition-all hover:bg-purple-500/20"
+          onClick={() => setMenuMovilAbierto(!menuMovilAbierto)}
+          aria-label="Alternar menú">
+          {menuMovilAbierto ? (
+            <X className="text-purple-400 w-6 h-6" />
+          ) : (
+            <Menu className="text-purple-400 w-6 h-6" />
+          )}
+        </button>
+      </div>
+
+      {/* Menú móvil */}
+      <div
+        className={cn(
+          "md:hidden overflow-hidden transition-all duration-300",
+          menuMovilAbierto ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        )}>
+        <div className="px-4 pb-6 pt-2 bg-gradient-to-b from-black/80 to-black/40 backdrop-blur-xl">
+          <div className="flex flex-col space-y-2">
+            <button
+              onClick={() => router.push("/")}
+              className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10">
+              Inicio
+            </button>
+            <button
+              onClick={() => router.push("/juego")}
+              className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10">
+              Juegos
+            </button>
+            <button
+              onClick={() => router.push("/acerca")}
+              className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10">
+              Sobre Nosotros
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }
