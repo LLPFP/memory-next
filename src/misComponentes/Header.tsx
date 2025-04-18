@@ -48,7 +48,7 @@ export default function Encabezado() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   onClick={() => router.push("/")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
                   <span className="relative z-10">Inicio</span>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -56,7 +56,7 @@ export default function Encabezado() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   onClick={() => router.push("/juego")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
                   <span className="relative z-10">Juegos</span>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -64,7 +64,7 @@ export default function Encabezado() {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   onClick={() => router.push("/acerca")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-purple-400 transition-all hover:scale-110 duration-300">
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
                   <span className="relative z-10">Acerca</span>
                 </NavigationMenuLink>
               </NavigationMenuItem>

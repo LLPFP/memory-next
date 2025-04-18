@@ -12,8 +12,7 @@ export default function Page() {
           src="./assets/video.mp4"
           autoPlay
           loop
-          muted
-          playsInline></video>
+          muted></video>
         <div className="absolute z-10 bg-black/70 p-8 rounded-lg max-w-2xl text-center backdrop-blur-sm shadow-2xl border border-gray-700">
           <h1 className="text-4xl font-bold text-white mb-4 animate-fade-in">
             Bienvenido al Memory Card
