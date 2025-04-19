@@ -36,6 +36,7 @@ export default function GrupoTarjetas({ personajes }: GrupoTarjetasProps) {
           {cartasBarajadas.map((personaje) => (
             <Tarjeta
               key={personaje.id}
+              id={personaje.id}
               nom={personaje.nom}
               imatge={personaje.imatge}
             />
