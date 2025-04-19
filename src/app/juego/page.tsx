@@ -3,10 +3,11 @@
 import GrupoTarjetas from "@/misComponentes/GrupoTarjetas";
 import { Tarjetas } from "@/app/data/Tarjetas";
 import Header from "@/misComponentes/Header";
+import { ClickProvider } from "@/app/context/clickContext";
 
 export default function Page() {
   return (
-    <>
+    <ClickProvider>
       <Header />
       <video
         className="fixed top-[80px] left-0 w-full h-[calc(100%-64px)] object-cover z-[-1]"
@@ -23,16 +24,16 @@ export default function Page() {
           </div>
           <div className="bg-black/70 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 md:mb-8">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-0 mb-4 sm:mb-6">
-              <div className="flex gap-8 justify-center items-center bg-blue-900/30 rounded-xl px-6 py-3 backdrop-blur-sm border border-blue-700/50">
-                <div className="flex items-center  gap-2">
+              <div className="flex justify-center items-center bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-xl px-8 py-4 backdrop-blur-sm border border-blue-500/50 shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+                <div className="flex items-center gap-2">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">
                     Intentos:
                   </span>
                   <span className="text-white font-bold text-lg sm:text-xl bg-gradient-to-r from-rose-500/20 to-purple-500/20 px-3 py-1 rounded-lg">
-                    0/2
+                    0
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ml-4 sm:ml-6">
                   <span className="text-gray-300 font-medium text-sm sm:text-base">
                     Aciertos:
                   </span>
@@ -41,7 +42,7 @@ export default function Page() {
                   </span>
                 </div>
               </div>
-            </div>{" "}
+            </div>
             <div className="flex justify-center">
               <button
                 onClick={() => window.location.reload()}
@@ -50,9 +51,9 @@ export default function Page() {
               </button>
             </div>
             <GrupoTarjetas personajes={Tarjetas} />
-          </div>{" "}
+          </div>
         </div>
       </main>
-    </>
+    </ClickProvider>
   );
 }
