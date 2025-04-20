@@ -1,14 +1,18 @@
 import Tarjeta from "@/misComponentes/Tarjeta";
 import { Separator } from "@/components/ui/separator";
-import { ClickProvider, useClickContext } from "@/app/context/clickContext";
+import { useClickContext } from "@/app/context/clickContext";
 
 type Personaje = {
   nom: string;
   imatge: string;
+  id: number;
 };
 
 type GrupoTarjetasProps = {
   personajes: Personaje[];
+  estadoTarjetas: { [id: number]: boolean };
+  contadores: { [id: number]: number };
+  manejarClick: (id: number) => void;
 };
 
 function TotalClicks() {
@@ -22,27 +26,36 @@ function TotalClicks() {
   );
 }
 
-export default function GrupoTarjetas({ personajes }: GrupoTarjetasProps) {
-  const cartasBarajadas = [...personajes, ...personajes]
-    .sort(() => Math.random() - 0.5)
-    .map((personaje, index) => ({ ...personaje, id: index }));
+export default function GrupoTarjetas({
+  personajes,
+  estadoTarjetas,
+  contadores,
+  manejarClick,
+}: GrupoTarjetasProps) {
+  const { incrementClicks } = useClickContext();
+
+  const manejarClickInterno = (id: number) => {
+    incrementClicks();
+    manejarClick(id);
+  };
 
   return (
-    <ClickProvider>
-      <section className="w-full max-w-7xl mx-auto p-6">
-        <Separator className="mb-6 bg-white/10" />
-        <TotalClicks />
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 justify-items-center">
-          {cartasBarajadas.map((personaje) => (
-            <Tarjeta
-              key={personaje.id}
-              id={personaje.id}
-              nom={personaje.nom}
-              imatge={personaje.imatge}
-            />
-          ))}
-        </div>
-      </section>
-    </ClickProvider>
+    <section className="w-full max-w-7xl mx-auto p-3">
+      <Separator className="mb-6 bg-white/10" />
+      <TotalClicks />
+      <div className="grid gap-x-1 gap-y-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 justify-items-center p-4 animate-fadeIn">
+        {personajes.map((personaje) => (
+          <Tarjeta
+            key={personaje.id}
+            id={personaje.id}
+            nom={personaje.nom}
+            imatge={personaje.imatge}
+            girada={estadoTarjetas[personaje.id] || false}
+            contador={contadores[personaje.id] || 0}
+            onClick={() => manejarClickInterno(personaje.id)}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
