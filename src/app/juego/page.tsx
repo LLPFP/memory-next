@@ -7,8 +7,8 @@ import { ClickProvider } from "@/app/context/clickContext";
 import { useState, useEffect } from "react";
 
 type Carta = {
-  id: number; // único para React
-  originalId: number; // id "de par" que viene de Tarjetas
+  id: number;
+  originalId: number;
   nom: string;
   imatge: string;
 };
@@ -26,7 +26,6 @@ export default function Page() {
   const [tiempo, setTiempo] = useState(20);
   const [tiempoActivo, setTiempoActivo] = useState(false);
 
-  // Genera la baraja solo una vez al iniciar o al reiniciar
   useEffect(() => {
     const barajarCartas = (): Carta[] => {
       return [...Tarjetas, ...Tarjetas]
