@@ -4,27 +4,17 @@ import GrupoTarjetas from "@/misComponentes/GrupoTarjetas";
 import { Tarjetas } from "@/app/data/Tarjetas";
 import Header from "@/misComponentes/Header";
 import { ClickProvider } from "@/app/context/clickContext";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 type Carta = {
-  id: number;
-  originalId: number;
+  id: number; // único para React
+  originalId: number; // id “de par” que viene de Tarjetas
   nom: string;
   imatge: string;
 };
 
 export default function Page() {
-  const cartasBarajadas = useMemo<Carta[]>(() => {
-    return [...Tarjetas, ...Tarjetas]
-      .map((personaje) => ({
-        originalId: personaje.id,
-        nom: personaje.nom,
-        imatge: personaje.imatge,
-      }))
-      .sort(() => Math.random() - 0.5)
-      .map((c, index) => ({ ...c, id: index }));
-  }, []);
-
+  const [cartasBarajadas, setCartasBarajadas] = useState<Carta[]>([]);
   const [estadoTarjetas, setEstadoTarjetas] = useState<{
     [id: number]: boolean;
   }>({});
@@ -33,6 +23,22 @@ export default function Page() {
   const [puntuacion, setPuntuacion] = useState(0);
   const [bloqueado, setBloqueado] = useState(false);
   const [hasGanado, setHasGanado] = useState(false);
+
+  // Genera la baraja solo una vez al iniciar o al reiniciar
+  useEffect(() => {
+    const barajarCartas = (): Carta[] => {
+      return [...Tarjetas, ...Tarjetas]
+        .map((personaje) => ({
+          originalId: personaje.id,
+          nom: personaje.nom,
+          imatge: personaje.imatge,
+        }))
+        .sort(() => Math.random() - 0.5)
+        .map((carta, index) => ({ ...carta, id: index }));
+    };
+
+    setCartasBarajadas(barajarCartas());
+  }, []);
 
   const manejarClick = (id: number) => {
     if (estadoTarjetas[id] || bloqueado) return;
@@ -46,15 +52,16 @@ export default function Page() {
     }));
 
     setEstadoTarjetas((prev) => ({ ...prev, [id]: true }));
-    const nuevas = [...seleccionadas, carta];
-    setSeleccionadas(nuevas);
 
-    if (nuevas.length === 2) {
+    const nuevasSeleccionadas = [...seleccionadas, carta];
+    setSeleccionadas(nuevasSeleccionadas);
+
+    if (nuevasSeleccionadas.length === 2) {
+      const [c1, c2] = nuevasSeleccionadas;
       setBloqueado(true);
-      const [c1, c2] = nuevas;
 
       if (c1.originalId === c2.originalId) {
-        setPuntuacion((p) => p + 1);
+        setPuntuacion((prev) => prev + 1);
         setSeleccionadas([]);
         setBloqueado(false);
       } else {
@@ -72,11 +79,33 @@ export default function Page() {
   };
 
   useEffect(() => {
-    const giradas = Object.values(estadoTarjetas).filter(Boolean).length;
-    if (giradas === cartasBarajadas.length) {
+    if (
+      cartasBarajadas.length > 0 &&
+      Object.values(estadoTarjetas).filter(Boolean).length ===
+        cartasBarajadas.length
+    ) {
       setHasGanado(true);
     }
-  }, [estadoTarjetas, cartasBarajadas.length]);
+  }, [estadoTarjetas, cartasBarajadas]);
+
+  const reiniciarJuego = () => {
+    const nuevaBaraja = [...Tarjetas, ...Tarjetas]
+      .map((personaje) => ({
+        originalId: personaje.id,
+        nom: personaje.nom,
+        imatge: personaje.imatge,
+      }))
+      .sort(() => Math.random() - 0.5)
+      .map((carta, index) => ({ ...carta, id: index }));
+
+    setCartasBarajadas(nuevaBaraja);
+    setEstadoTarjetas({});
+    setContadores({});
+    setSeleccionadas([]);
+    setPuntuacion(0);
+    setBloqueado(false);
+    setHasGanado(false);
+  };
 
   return (
     <ClickProvider>
@@ -111,7 +140,7 @@ export default function Page() {
 
             <div className="flex justify-center mt-6">
               <button
-                onClick={() => window.location.reload()}
+                onClick={reiniciarJuego}
                 className="bg-gradient-to-r from-rose-600 to-purple-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform">
                 Reiniciar Juego
               </button>
@@ -127,7 +156,7 @@ export default function Page() {
               </h2>
               <p className="text-gray-700">Has encontrado todas las parejas.</p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={reiniciarJuego}
                 className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform">
                 Volver a jugar
               </button>
