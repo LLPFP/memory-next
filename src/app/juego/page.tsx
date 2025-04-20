@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 
 type Carta = {
   id: number; // único para React
-  originalId: number; // id “de par” que viene de Tarjetas
+  originalId: number; // id "de par" que viene de Tarjetas
   nom: string;
   imatge: string;
 };
@@ -23,6 +23,8 @@ export default function Page() {
   const [puntuacion, setPuntuacion] = useState(0);
   const [bloqueado, setBloqueado] = useState(false);
   const [hasGanado, setHasGanado] = useState(false);
+  const [tiempo, setTiempo] = useState(20);
+  const [tiempoActivo, setTiempoActivo] = useState(false);
 
   // Genera la baraja solo una vez al iniciar o al reiniciar
   useEffect(() => {
@@ -38,10 +40,27 @@ export default function Page() {
     };
 
     setCartasBarajadas(barajarCartas());
+    setTiempoActivo(true);
   }, []);
 
+  useEffect(() => {
+    let intervalo: NodeJS.Timeout;
+    if (tiempoActivo && !hasGanado && tiempo > 0) {
+      intervalo = setInterval(() => {
+        setTiempo((prevTiempo) => {
+          if (prevTiempo <= 1) {
+            setTiempoActivo(false);
+            return 0;
+          }
+          return prevTiempo - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(intervalo);
+  }, [tiempoActivo, hasGanado, tiempo]);
+
   const manejarClick = (id: number) => {
-    if (estadoTarjetas[id] || bloqueado) return;
+    if (estadoTarjetas[id] || bloqueado || tiempo === 0) return;
 
     const carta = cartasBarajadas.find((c) => c.id === id);
     if (!carta) return;
@@ -85,6 +104,7 @@ export default function Page() {
         cartasBarajadas.length
     ) {
       setHasGanado(true);
+      setTiempoActivo(false);
     }
   }, [estadoTarjetas, cartasBarajadas]);
 
@@ -105,6 +125,14 @@ export default function Page() {
     setPuntuacion(0);
     setBloqueado(false);
     setHasGanado(false);
+    setTiempo(20);
+    setTiempoActivo(true);
+  };
+
+  const formatTiempo = (segundos: number) => {
+    const minutos = Math.floor(segundos / 60);
+    const segs = segundos % 60;
+    return `${minutos}:${segs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -126,11 +154,21 @@ export default function Page() {
             </h1>
           </div>
 
-          <div className="text-center text-white font-semibold text-lg mb-4">
-            Puntuación: <span className="text-purple-300">{puntuacion}</span>
-          </div>
-
           <div className="bg-black/70 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-6 mb-8">
+            <div className="flex justify-center gap-8 text-white font-semibold text-xl mb-6 bg-black/40 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-purple-500/30 max-w-md mx-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-300">Puntuación:</span>
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
+                  {puntuacion}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-300">Tiempo:</span>
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
+                  {tiempo}
+                </span>
+              </div>
+            </div>
             <GrupoTarjetas
               personajes={cartasBarajadas}
               estadoTarjetas={estadoTarjetas}
@@ -148,13 +186,18 @@ export default function Page() {
           </div>
         </div>
 
-        {hasGanado && (
+        {(hasGanado || tiempo === 0) && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm text-center space-y-4 animate-fade-in">
               <h2 className="text-2xl font-bold text-purple-700">
-                ¡Felicidades! 🎉
+                {hasGanado ? "¡Felicidades! 🎉" : "¡Tiempo agotado! ⏰"}
               </h2>
-              <p className="text-gray-700">Has encontrado todas las parejas.</p>
+              <p className="text-gray-700">
+                {hasGanado
+                  ? "Has encontrado todas las parejas."
+                  : "Se acabó el tiempo."}
+              </p>
+              <p className="text-gray-700">Tiempo: {formatTiempo(tiempo)}</p>
               <button
                 onClick={reiniciarJuego}
                 className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform">
