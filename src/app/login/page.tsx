@@ -33,6 +33,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     
   }
   login();
+  window.location.href = "/home";
 
   };
 
