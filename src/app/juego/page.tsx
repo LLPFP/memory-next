@@ -27,19 +27,26 @@ export default function Page() {
   const [tiempoActivo, setTiempoActivo] = useState(false);
 
   useEffect(() => {
-    const barajarCartas = (): Carta[] => {
-      return [...Tarjetas, ...Tarjetas]
-        .map((personaje) => ({
-          originalId: personaje.id,
-          nom: personaje.nom,
-          imatge: personaje.imatge,
-        }))
-        .sort(() => Math.random() - 0.5)
-        .map((carta, index) => ({ ...carta, id: index }));
-    };
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Inicia sesión para jugar");
 
-    setCartasBarajadas(barajarCartas());
-    setTiempoActivo(true);
+      window.location.href = "/login";
+    } else {
+      const barajarCartas = (): Carta[] => {
+        return [...Tarjetas, ...Tarjetas]
+          .map((personaje) => ({
+            originalId: personaje.id,
+            nom: personaje.nom,
+            imatge: personaje.imatge,
+          }))
+          .sort(() => Math.random() - 0.5)
+          .map((carta, index) => ({ ...carta, id: index }));
+      };
+
+      setCartasBarajadas(barajarCartas());
+      setTiempoActivo(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -178,7 +185,8 @@ export default function Page() {
             <div className="flex justify-center mt-6">
               <button
                 onClick={reiniciarJuego}
-                className="bg-gradient-to-r from-rose-600 to-purple-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform">
+                className="bg-gradient-to-r from-rose-600 to-purple-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform"
+              >
                 Reiniciar Juego
               </button>
             </div>
@@ -199,7 +207,8 @@ export default function Page() {
               <p className="text-gray-700">Tiempo: {formatTiempo(tiempo)}</p>
               <button
                 onClick={reiniciarJuego}
-                className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform">
+                className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+              >
                 Volver a jugar
               </button>
             </div>
