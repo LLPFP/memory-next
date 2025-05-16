@@ -1,3 +1,5 @@
+'use client'
+
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -81,21 +83,31 @@ export default function Encabezado() {
               </NavigationMenuItem>
 
               {!currentUser ? (
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
-                    <button onClick={() => router.push("/login")}>
-                      <span className="relative z-10">Login</span>
-                    </button>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                <>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                      <button onClick={() => router.push("/login")}>
+                        <span className="relative z-10">Login</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                      <button onClick={() => router.push("/registro")}>
+                        <span className="relative z-10">Registro</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </>
               ) : (
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     asChild
                     className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
-                    <span className="relative z-10">{currentUser.nombre}</span>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
@@ -148,7 +160,6 @@ export default function Encabezado() {
             )}
             {currentUser && (
               <span className="px-4 py-3 text-sm font-medium text-purple-400">
-                {currentUser.nombre}
               </span>
             )}
           </div>
