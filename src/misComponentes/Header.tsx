@@ -15,16 +15,11 @@ export default function Encabezado() {
   const router = useRouter();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
   const [haHechoScroll, setHaHechoScroll] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [nombre, setNombre] = useState();
 
   useEffect(() => {
     const manejarScroll = () => setHaHechoScroll(window.scrollY > 50);
     window.addEventListener("scroll", manejarScroll);
-    const user = localStorage.getItem("currentUser");
-    if (user) {
-      setCurrentUser(JSON.parse(user));
-    }
 
     async function leerPerfil() {
       const url = "https://laravelm7-luislp-production.up.railway.app/api/me";
