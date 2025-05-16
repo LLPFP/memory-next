@@ -13,10 +13,15 @@ export default function Encabezado() {
   const router = useRouter();
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
   const [haHechoScroll, setHaHechoScroll] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const manejarScroll = () => setHaHechoScroll(window.scrollY > 50);
     window.addEventListener("scroll", manejarScroll);
+    const user = localStorage.getItem("currentUser");
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
     return () => window.removeEventListener("scroll", manejarScroll);
   }, []);
 
@@ -47,27 +52,53 @@ export default function Encabezado() {
             <NavigationMenuList className="flex space-x-4">
               <NavigationMenuItem>
                 <NavigationMenuLink
-                  onClick={() => router.push("/")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
-                  <span className="relative z-10">Inicio</span>
+                  asChild
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                  <button onClick={() => router.push("/")}>
+                    <span className="relative z-10">Inicio</span>
+                  </button>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <NavigationMenuLink
-                  onClick={() => router.push("/juego")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
-                  <span className="relative z-10">Juegos</span>
+                  asChild
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                  <button onClick={() => router.push("/juego")}>
+                    <span className="relative z-10">Juego</span>
+                  </button>
                 </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <NavigationMenuLink
-                  onClick={() => router.push("/acerca")}
-                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300">
-                  <span className="relative z-10">Acerca</span>
+                  asChild
+                  className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                  <button onClick={() => router.push("/acerca")}>
+                    <span className="relative z-10">Acerca</span>
+                  </button>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
+              {!currentUser ? (
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className="relative px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                    <button onClick={() => router.push("/login")}>
+                      <span className="relative z-10">Login</span>
+                    </button>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ) : (
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer">
+                    <span className="relative z-10">{currentUser.nombre}</span>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </nav>
@@ -108,6 +139,18 @@ export default function Encabezado() {
               className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10">
               Sobre Nosotros
             </button>
+            {!currentUser && (
+              <button
+                onClick={() => router.push("/login")}
+                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10">
+                Login
+              </button>
+            )}
+            {currentUser && (
+              <span className="px-4 py-3 text-sm font-medium text-purple-400">
+                {currentUser.nombre}
+              </span>
+            )}
           </div>
         </div>
       </div>
