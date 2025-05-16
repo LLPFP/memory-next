@@ -1,32 +1,27 @@
-export const Tarjetas = [
-  {
-    id: 1,
-    nom: "Freddy Krueger",
-    imatge: "/assets/freddy.jpg",
-  },
-  {
-    id: 2,
-    nom: "Michael Myers",
-    imatge: "/assets/Myers.png",
-  },
-  {
-    id: 3,
-    nom: "Jason Voorhees",
-    imatge: "/assets/Jason.png",
-  },
-  {
-    id: 4,
-    nom: "Pennywise",
-    imatge: "/assets/pennywise.png",
-  },
-  {
-    id: 5,
-    nom: "Samara Morgan",
-    imatge: "/assets/samara.jpg",
-  },
-  {
-    id: 6,
-    nom: "Chucky",
-    imatge: "/assets/chucky.jpg",
-  },
-];
+console.log("Tarjetas.js");
+
+const fetchPokemondatosPokemon = async () => {
+  try {
+    const peticionApi = await fetch(
+      "https://pokeapi.co/api/v2/pokemon?limit=6"
+    );
+    const datosPokemon = await peticionApi.json();
+
+    const fetchPromises = datosPokemon.results.map((pokemon) =>
+      fetch(pokemon.url).then((res) => res.json())
+    );
+
+    const pokemonDetalles = await Promise.all(fetchPromises);
+
+    return pokemonDetalles.map((pokemon) => ({
+      id: pokemon.id,
+      nom: pokemon.name,
+      imatge: pokemon.sprites.front_default,
+    }));
+  } catch (error) {
+    console.error("Error fetching el pokémon:", error);
+    return [];
+  }
+};
+
+export const Tarjetas = await fetchPokemondatosPokemon();
