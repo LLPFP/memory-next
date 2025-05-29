@@ -126,16 +126,39 @@ export default function Encabezado() {
                   </NavigationMenuItem>
                 </>
               ) : (
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
-                  >
-                    <button onClick={() => router.push("/perfil")}>
-                      <span className="relative z-10">{nombre}</span>
-                    </button>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                <>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
+                    >
+                      <button onClick={() => router.push("/perfil")}>
+                        <span className="relative z-10">{nombre}</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
+                    >
+                      <button onClick={() => router.push("/ranking")}>
+                        <span className="relative z-10">Ranking</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
+                    >
+                      <button onClick={() => router.push("/partidas")}>
+                        <span className="relative z-10">Partidas</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                </>
               )}
             </NavigationMenuList>
           </NavigationMenu>

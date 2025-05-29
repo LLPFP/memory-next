@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Header from "@/misComponentes/Header";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -35,7 +34,6 @@ export default function Login() {
         }
 
         const respuestaJson = await respuesta.json();
-        console.log(respuestaJson);
         localStorage.setItem("token", respuestaJson.token);
         window.location.href = "/home";
       } catch (error) {
@@ -47,7 +45,6 @@ export default function Login() {
 
   return (
     <>
-      <Header />
       <video
         className="fixed top-[80px] left-0 w-full h-[calc(100%-64px)] object-cover z-[-1] opacity-100"
         src="/assets/fondo-juego.mp4"

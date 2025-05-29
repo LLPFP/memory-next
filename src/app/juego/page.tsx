@@ -2,9 +2,8 @@
 
 import GrupoTarjetas from "@/misComponentes/GrupoTarjetas";
 import { Tarjetas } from "@/app/data/Tarjetas";
-import Header from "@/misComponentes/Header";
 import { ClickProvider } from "@/app/context/clickContext";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 
 type Carta = {
   id: number;
@@ -195,7 +194,6 @@ export default function Page() {
 
   return (
     <ClickProvider>
-      <Header />
       <video
         className="fixed top-[80px] left-0 w-full h-[calc(100%-64px)] object-cover z-[-1]"
         src="./assets/fondo-juego.mp4"
