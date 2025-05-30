@@ -3,6 +3,10 @@
 import Header from "@/misComponentes/Header";
 
 export default function Page() {
+  const token = localStorage.getItem("token");
+
+  console.log(token);
+
   return (
     <>
       <Header />
@@ -12,7 +16,8 @@ export default function Page() {
           src="./assets/video.mp4"
           autoPlay
           loop
-          muted></video>
+          muted
+        ></video>
         <div className="absolute z-10 bg-black/70 p-8 rounded-lg max-w-2xl text-center backdrop-blur-sm shadow-2xl border border-gray-700">
           <h1 className="text-4xl font-bold text-white mb-4 animate-fade-in">
             Bienvenido al Memory Card
@@ -25,7 +30,8 @@ export default function Page() {
           <div className="flex gap-4 justify-center">
             <a
               href="/juego"
-              className="bg-gradient-to-r from-rose-600 to-purple-600  text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+              className="bg-gradient-to-r from-rose-600 to-purple-600  text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+            >
               Jugar Ahora
             </a>
           </div>
