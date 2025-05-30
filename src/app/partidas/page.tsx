@@ -2,8 +2,17 @@
 import { useEffect, useState } from "react";
 
 export default function Partidas() {
-  const [partidas, setPartidas] = useState<any[]>([]);
-  const [todasPartidas, setTodasPartidas] = useState<any[]>([]);
+  interface Partida {
+    id: number;
+    created_at: string;
+    duració?: string;
+    clics?: number;
+    puntuació?: number;
+    user?: { name: string };
+  }
+
+  const [partidas, setPartidas] = useState<Partida[]>([]);
+  const [todasPartidas, setTodasPartidas] = useState<Partida[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<"mis" | "todas">("mis");
