@@ -2,7 +2,6 @@
 
 import GrupoTarjetas from "@/misComponentes/GrupoTarjetas";
 import { Tarjetas } from "@/app/data/Tarjetas";
-import Header from "@/misComponentes/Header";
 import { ClickProvider } from "@/app/context/clickContext";
 import { useState, useEffect } from "react";
 
@@ -22,36 +21,36 @@ export default function Page() {
   const [seleccionadas, setSeleccionadas] = useState<Carta[]>([]);
   const [puntuacion, setPuntuacion] = useState(0);
   const [bloqueado, setBloqueado] = useState(false);
-  const [hasGanado, setHasGanado] = useState(false);
   const [tiempo, setTiempo] = useState(20);
   const [tiempoActivo, setTiempoActivo] = useState(false);
+  const [juegoIniciado, setJuegoIniciado] = useState(false); // Nuevo estado
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Inicia sesión para jugar");
-
       window.location.href = "/login";
-    } else {
-      const barajarCartas = (): Carta[] => {
-        return [...Tarjetas, ...Tarjetas]
-          .map((personaje) => ({
-            originalId: personaje.id,
-            nom: personaje.nom,
-            imatge: personaje.imatge,
-          }))
-          .sort(() => Math.random() - 0.5)
-          .map((carta, index) => ({ ...carta, id: index }));
-      };
-
-      setCartasBarajadas(barajarCartas());
-      setTiempoActivo(true);
+      return;
     }
+
+    const barajarCartas = (): Carta[] => {
+      return [...Tarjetas, ...Tarjetas]
+        .map((personaje) => ({
+          originalId: personaje.id,
+          nom: personaje.nom,
+          imatge: personaje.imatge,
+        }))
+        .sort(() => Math.random() - 0.5)
+        .map((carta, index) => ({ ...carta, id: index }));
+    };
+
+    setCartasBarajadas(barajarCartas());
+    // setTiempoActivo(true); // Quitar esto, el juego no debe empezar aún
   }, []);
 
   useEffect(() => {
     let intervalo: NodeJS.Timeout;
-    if (tiempoActivo && !hasGanado && tiempo > 0) {
+    if (tiempoActivo && tiempo > 0) {
       intervalo = setInterval(() => {
         setTiempo((prevTiempo) => {
           if (prevTiempo <= 1) {
@@ -63,7 +62,7 @@ export default function Page() {
       }, 1000);
     }
     return () => clearInterval(intervalo);
-  }, [tiempoActivo, hasGanado, tiempo]);
+  }, [tiempoActivo, tiempo]);
 
   const manejarClick = (id: number) => {
     if (estadoTarjetas[id] || bloqueado || tiempo === 0) return;
@@ -104,15 +103,68 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if (
-      cartasBarajadas.length > 0 &&
-      Object.values(estadoTarjetas).filter(Boolean).length ===
-        cartasBarajadas.length
-    ) {
-      setHasGanado(true);
-      setTiempoActivo(false);
+    if (tiempo === 0) {
+      const tiempoUsado = 20 - tiempo; // Calcula el tiempo usado
+      console.log("¡Has perdido!");
+      console.log(`Puntuación final: ${puntuacion}`);
+      console.log(`Tiempo usado: ${tiempoUsado}`);
+      console.log(`Clics finales: ${contadores}`);
+
+      async function guardarDatosJuego() {
+        const gameId = localStorage.getItem("gameId");
+        const url =
+          "https://laravelm7-luislp-production.up.railway.app/api/games/" +
+          gameId +
+          "/finish";
+        const token = localStorage.getItem("token");
+        const totalClics = Object.values(contadores).reduce((a, b) => a + b, 0);
+        const clicsFinales = totalClics;
+        const respuesta = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            puntuació: puntuacion,
+            duració: tiempoUsado,
+            clics: clicsFinales,
+          }),
+        });
+        const respuestaJson = await respuesta.json();
+        console.log(respuestaJson);
+      }
+      guardarDatosJuego();
     }
-  }, [estadoTarjetas, cartasBarajadas]);
+  }, [tiempo]);
+
+  const crearJuego = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token no encontrado");
+      return;
+    }
+    const url = "https://laravelm7-luislp-production.up.railway.app/api/games";
+    const respuesta = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({}),
+    });
+    const respuestaJson = await respuesta.json();
+    if (respuestaJson && respuestaJson.data.id) {
+      localStorage.setItem("gameId", respuestaJson.data.id.toString());
+    }
+  };
+
+  const comenzarJuego = () => {
+    setTiempo(20);
+    setTiempoActivo(true);
+    setJuegoIniciado(true);
+    crearJuego();
+  };
 
   const reiniciarJuego = () => {
     const nuevaBaraja = [...Tarjetas, ...Tarjetas]
@@ -130,9 +182,9 @@ export default function Page() {
     setSeleccionadas([]);
     setPuntuacion(0);
     setBloqueado(false);
-    setHasGanado(false);
-    setTiempo(20);
-    setTiempoActivo(true);
+    setTiempoActivo(false); // Detener el tiempo hasta que pulse "Comenzar"
+    setJuegoIniciado(false); // Volver a mostrar el botón de inicio
+    comenzarJuego(); // Reiniciar el juego
   };
 
   const formatTiempo = (segundos: number) => {
@@ -143,7 +195,6 @@ export default function Page() {
 
   return (
     <ClickProvider>
-      <Header />
       <video
         className="fixed top-[80px] left-0 w-full h-[calc(100%-64px)] object-cover z-[-1]"
         src="./assets/fondo-juego.mp4"
@@ -160,56 +211,69 @@ export default function Page() {
             </h1>
           </div>
 
-          <div className="bg-black/70 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-6 mb-8">
-            <div className="flex justify-center gap-8 text-white font-semibold text-xl mb-6 bg-black/40 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-purple-500/30 max-w-md mx-auto">
-              <div className="flex items-center gap-2">
-                <span className="text-gray-300">Puntuación:</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
-                  {puntuacion}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-300">Tiempo:</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
-                  {tiempo}
-                </span>
-              </div>
-            </div>
-            <GrupoTarjetas
-              personajes={cartasBarajadas}
-              estadoTarjetas={estadoTarjetas}
-              contadores={contadores}
-              manejarClick={manejarClick}
-            />
-
-            <div className="flex justify-center mt-6">
+          {!juegoIniciado ? (
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
               <button
-                onClick={reiniciarJuego}
-                className="bg-gradient-to-r from-rose-600 to-purple-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform"
+                onClick={comenzarJuego}
+                className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-8 py-4 rounded-xl text-2xl font-bold shadow-lg hover:scale-105 transition-transform"
               >
-                Reiniciar Juego
+                Comenzar Juego
               </button>
             </div>
-          </div>
+          ) : (
+            <div className="bg-black/70 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-6 mb-8">
+              <div className="flex justify-center gap-8 text-white font-semibold text-xl mb-6 bg-black/40 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-purple-500/30 max-w-md mx-auto">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-300">Puntuación:</span>
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
+                    {puntuacion}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-300">Tiempo:</span>
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
+                    {tiempo}
+                  </span>
+                </div>
+              </div>
+              <GrupoTarjetas
+                personajes={cartasBarajadas}
+                estadoTarjetas={estadoTarjetas}
+                contadores={contadores}
+                manejarClick={manejarClick}
+              />
+
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={reiniciarJuego}
+                  className="bg-gradient-to-r from-rose-600 to-purple-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition-transform"
+                >
+                  Reiniciar Juego
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {(hasGanado || tiempo === 0) && (
+        {tiempo === 0 && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm text-center space-y-4 animate-fade-in">
               <h2 className="text-2xl font-bold text-purple-700">
-                {hasGanado ? "¡Felicidades! 🎉" : "¡Tiempo agotado! ⏰"}
+                ¡Tiempo agotado! ⏰
               </h2>
-              <p className="text-gray-700">
-                {hasGanado
-                  ? "Has encontrado todas las parejas."
-                  : "Se acabó el tiempo."}
-              </p>
+              <p className="text-gray-700">Se acabó el tiempo.</p>
               <p className="text-gray-700">Tiempo: {formatTiempo(tiempo)}</p>
               <button
                 onClick={reiniciarJuego}
                 className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform"
               >
                 Volver a jugar
+              </button>
+              <button
+                onClick={() => setTiempoActivo(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+              >
+                Cerrar
               </button>
             </div>
           </div>

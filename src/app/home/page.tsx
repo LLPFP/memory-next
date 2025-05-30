@@ -1,15 +1,8 @@
 "use client";
 
-import Header from "@/misComponentes/Header";
-
 export default function Page() {
-  const token = localStorage.getItem("token");
-
-  console.log(token);
-
   return (
     <>
-      <Header />
       <div className="flex flex-col items-center justify-center h-screen">
         <video
           className="w-full h-full object-cover z-[5]"

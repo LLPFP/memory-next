@@ -1,45 +1,51 @@
 "use client";
 import { useState } from "react";
-import Header from "@/misComponentes/Header";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const data = {
-    email: email,
-    password: password,
-  };
-  console.log(data);
+    const data = {
+      email: email,
+      password: password,
+    };
+    console.log(data);
 
-  async function login() {
-      const url = 'https://laravelm7-luislp-production.up.railway.app/api/login';
-      const respuesta = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          password
-        })
-      });
-      const respuestaJson = await respuesta.json();
-      console.log(respuestaJson);
-      localStorage.setItem("token", respuestaJson.token);
-    
-  }
-  login();
-  window.location.href = "/home";
+    async function login() {
+      const url =
+        "https://laravelm7-luislp-production.up.railway.app/api/login";
+      try {
+        const respuesta = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
 
+        if (!respuesta.ok) {
+          throw new Error("Credenciales incorrectas");
+        }
+
+        const respuestaJson = await respuesta.json();
+        localStorage.setItem("token", respuestaJson.token);
+        window.location.href = "/home";
+      } catch (error) {
+        console.error("Error during login:", error);
+        alert("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
+      }
+    }
+    login();
   };
 
   return (
     <>
-      <Header />
       <video
         className="fixed top-[80px] left-0 w-full h-[calc(100%-64px)] object-cover z-[-1] opacity-100"
         src="/assets/fondo-juego.mp4"
@@ -83,7 +89,8 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
             <button
               type="submit"
-              className="w-full py-3 px-4 text-white font-semibold rounded-lg bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 hover:opacity-90 transform hover:scale-105 transition-all duration-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+              className="w-full py-3 px-4 text-white font-semibold rounded-lg bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-500 hover:opacity-90 transform hover:scale-105 transition-all duration-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            >
               Iniciar Sesión
             </button>
           </form>
