@@ -3,7 +3,15 @@ import { useEffect, useState } from "react";
 import { FaMedal } from "react-icons/fa";
 
 export default function Ranking() {
-  const [ranking, setRanking] = useState<any[]>([]);
+  interface RankingItem {
+    user_id: number;
+    user?: { name: string };
+    duració?: string;
+    clics?: number;
+    puntuació?: number;
+  }
+
+  const [ranking, setRanking] = useState<RankingItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

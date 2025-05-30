@@ -37,6 +37,7 @@ export default function Login() {
         localStorage.setItem("token", respuestaJson.token);
         window.location.href = "/home";
       } catch (error) {
+        console.error("Error during login:", error);
         alert("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
       }
     }
