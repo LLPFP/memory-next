@@ -114,7 +114,8 @@ export default function Page() {
         const gameId = localStorage.getItem("gameId");
         const url =
           "https://laravelm7-luislp-production.up.railway.app/api/games/" +
-          gameId;
+          gameId +
+          "/finish";
         const token = localStorage.getItem("token");
         const totalClics = Object.values(contadores).reduce((a, b) => a + b, 0);
         const clicsFinales = totalClics;
@@ -267,6 +268,12 @@ export default function Page() {
                 className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform"
               >
                 Volver a jugar
+              </button>
+              <button
+                onClick={() => setTiempoActivo(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+              >
+                Cerrar
               </button>
             </div>
           </div>

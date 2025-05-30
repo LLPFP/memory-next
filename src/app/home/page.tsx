@@ -1,10 +1,6 @@
 "use client";
 
 export default function Page() {
-  const token = localStorage.getItem("token");
-
-  console.log(token);
-
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen">

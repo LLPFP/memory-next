@@ -24,7 +24,6 @@ export default function Encabezado() {
     async function leerPerfil() {
       const url = "https://laravelm7-luislp-production.up.railway.app/api/me";
       const token = localStorage.getItem("token");
-      console.log("Token:", token);
       const respuesta = await fetch(url, {
         method: "GET",
         headers: {
@@ -36,6 +35,7 @@ export default function Encabezado() {
       const respuestaJson = await respuesta.json();
       console.log("Datos cargados del user:", respuestaJson);
       setNombre(respuestaJson.data.name);
+      localStorage.setItem("role", respuestaJson.data.role);
     }
 
     leerPerfil();
