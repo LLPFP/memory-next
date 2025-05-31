@@ -158,6 +158,16 @@ export default function Encabezado() {
                       </button>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
+                    >
+                      <button onClick={() => router.push("/dashboard")}>
+                        <span className="relative z-10">Dashboard</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                 </>
               )}
             </NavigationMenuList>
