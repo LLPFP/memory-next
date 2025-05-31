@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Image as ImageIcon, PlusCircle } from "lucide-react";
 
-// Adaptamos la interfaz a los campos reales de la API
 interface Card {
   id: number;
   nom: string;
@@ -26,35 +25,38 @@ function Cards() {
   });
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    useEffect(() => {
+        const fetchCards = async () => {
+            try {
+                const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+                let url = "";
+                if (role === "admin") {
+                    url = "/api/cards";
+                } else {
+                    url = "https://laravelm7-luislp-production.up.railway.app/api/my-cards";
+                }
+                const response = await fetch(url, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                });
+                if (!response.ok) throw new Error("Error al obtener cartas");
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setCards(data);
+                } else if (Array.isArray(data.cards)) {
+                    setCards(data.cards);
+                } else if (Array.isArray(data.data)) {
+                    setCards(data.data);
+                } else {
+                    setCards([]);
+                }
+            } catch (error) {
+                console.error("Error al cargar cartas:", error);
+                setCards([]);
+            }
+        };
+        fetchCards();
+    }, [token]);
 
-  useEffect(() => {
-    const fetchCards = async () => {
-      try {
-        const response = await fetch(
-          "https://laravelm7-luislp-production.up.railway.app/api/cards",
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          }
-        );
-        if (!response.ok) throw new Error("Error al obtener cartas");
-        const data = await response.json();
-        // Adaptar a la estructura real de la API
-        if (Array.isArray(data)) {
-          setCards(data);
-        } else if (Array.isArray(data.cards)) {
-          setCards(data.cards);
-        } else if (Array.isArray(data.data)) {
-          setCards(data.data);
-        } else {
-          setCards([]);
-        }
-      } catch (error) {
-        console.error("Error al cargar cartas:", error);
-        setCards([]);
-      }
-    };
-    fetchCards();
-  }, [token]);
 
   const handleDeleteCard = async (cardId: number) => {
     if (!confirm("¿Estás seguro de que quieres eliminar esta carta?")) return;
@@ -89,7 +91,12 @@ function Cards() {
       );
       if (!res.ok) throw new Error("No se pudo crear la carta");
       const created = await res.json();
-      setCards((prev) => [...prev, created]);
+      // Adaptar a la estructura real de la respuesta
+      const card =
+        created.card ||
+        created.data ||
+        created; // fallback si viene directo
+      setCards((prev) => [...prev, card]);
       setNewCard({ nom: "", imatge: "", category_id: 1 });
       setShowAddForm(false);
     } catch (error) {

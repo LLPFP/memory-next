@@ -110,7 +110,7 @@ function Categorias() {
             placeholder="Nombre"
             value={newCategoria.name}
             onChange={(e) =>
-              setNewCategoria((c) => ({ ...c, nom: e.target.value }))
+              setNewCategoria((c) => ({ ...c, name: e.target.value }))
             }
             required
           />

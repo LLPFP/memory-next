@@ -6,20 +6,22 @@ import Partidas from "@/misComponentes/Partidas";
 import Cards from "@/misComponentes/Cards"; 
 import Categorias from "@/misComponentes/Categorias"; // <--- Añadido
 
-
-
-
-
-
 export default function DashboardPage() {
-  
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("usuarios");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
+    // Detectar si el usuario es admin leyendo el role de localStorage
+    if (typeof window !== "undefined") {
+      const role = localStorage.getItem("role");
+      setIsAdmin(role === "admin");
+      // Si no es admin, forzar tab inicial a "cards"
+      if (role !== "admin") setActiveTab("cards");
+    }
     const fetchData = async () => {
       try {
         const [ ] =
@@ -54,24 +56,28 @@ export default function DashboardPage() {
         Panel de Administración
       </h1>
       <div className="mb-6 flex justify-center gap-4">
-        <button
-          className={`px-4 py-2 rounded-lg ${
-            activeTab === "usuarios" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("usuarios")}
-        >
-          Usuarios
-        </button>
-        <button
-          className={`px-4 py-2 rounded-lg ${
-            activeTab === "partidas"
-              ? "bg-purple-500 text-white"
-              : "bg-gray-200"
-          }`}
-          onClick={() => setActiveTab("partidas")}
-        >
-          Partidas
-        </button>
+        {isAdmin && (
+          <>
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                activeTab === "usuarios" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => setActiveTab("usuarios")}
+            >
+              Usuarios
+            </button>
+            <button
+              className={`px-4 py-2 rounded-lg ${
+                activeTab === "partidas"
+                  ? "bg-purple-500 text-white"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => setActiveTab("partidas")}
+            >
+              Partidas
+            </button>
+          </>
+        )}
         <button
           className={`px-4 py-2 rounded-lg ${
             activeTab === "categorias"
@@ -92,19 +98,10 @@ export default function DashboardPage() {
         </button>
       </div>
       <div>
-        {activeTab === "usuarios" && (
-          <Usuarios />
-        )}
-
-        {activeTab === "partidas" && (
-          <Partidas />
-        )}
-        {activeTab === "categorias" && (
-          <Categorias />
-        )}
-        {activeTab === "cards" && (
-          <Cards />
-        )}
+        {isAdmin && activeTab === "usuarios" && <Usuarios />}
+        {isAdmin && activeTab === "partidas" && <Partidas />}
+        {activeTab === "categorias" && <Categorias />}
+        {activeTab === "cards" && <Cards />}
       </div>
     </div>
   );
