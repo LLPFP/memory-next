@@ -1,7 +1,6 @@
 "use client";
 
 import GrupoTarjetas from "@/misComponentes/GrupoTarjetas";
-import { Tarjetas } from "@/app/data/Tarjetas";
 import { ClickProvider } from "@/app/context/clickContext";
 import { useState, useEffect } from "react";
 
@@ -10,6 +9,13 @@ type Carta = {
   originalId: number;
   nom: string;
   imatge: string;
+  category_id?: number; // Cambia a category_id si así viene de la API
+};
+
+type Categoria = {
+  id: number;
+  name: string;
+  cards?: Carta[]; // <-- Corrige el tipado aquí
 };
 
 export default function Page() {
@@ -24,6 +30,10 @@ export default function Page() {
   const [tiempo, setTiempo] = useState(20);
   const [tiempoActivo, setTiempoActivo] = useState(false);
   const [juegoIniciado, setJuegoIniciado] = useState(false); // Nuevo estado
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
+  const [cartasFiltradas, setCartasFiltradas] = useState<Carta[]>([]);
+  const [finPartida, setFinPartida] = useState<null | "victoria" | "derrota">(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -33,20 +43,59 @@ export default function Page() {
       return;
     }
 
-    const barajarCartas = (): Carta[] => {
-      return [...Tarjetas, ...Tarjetas]
-        .map((personaje) => ({
-          originalId: personaje.id,
-          nom: personaje.nom,
-          imatge: personaje.imatge,
-        }))
-        .sort(() => Math.random() - 0.5)
-        .map((carta, index) => ({ ...carta, id: index }));
-    };
+    // Obtener categorías de la API
+    async function fetchCategorias() {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("https://laravelm7-luislp-production.up.railway.app/api/categories", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        console.log("Respuesta completa de la API:", data); // Log para depuración
 
-    setCartasBarajadas(barajarCartas());
-    // setTiempoActivo(true); // Quitar esto, el juego no debe empezar aún
-  }, []);
+        const categoriasArray = Array.isArray(data.data) ? data.data : Array.isArray(data) ? data : [];
+        if (categoriasArray.length > 0) {
+          const categoriasProcesadas = categoriasArray.map((cat: { id: number; name: string; cards?: Carta[] }) => ({
+            ...cat,
+            name: cat.name,
+            cards: Array.isArray(cat.cards) ? cat.cards : [], // Asegura que siempre sea array
+          }));
+          setCategorias(categoriasProcesadas);
+          console.log("Categorías procesadas:", categoriasProcesadas); // Log para depuración
+        } else {
+          console.error("La respuesta de la API no contiene categorías válidas.");
+          setCategorias([]);
+        }
+      } catch (error) {
+        console.error("Error al obtener categorías:", error);
+        setCategorias([]);
+      }
+    }
+    fetchCategorias();
+
+  }, []); // Solo ejecuta una vez al montar
+
+  // Filtrar cartas cada vez que cambia la categoría seleccionada
+  useEffect(() => {
+    if (categoriaSeleccionada !== null) {
+      // Buscar la categoría seleccionada en el array de categorías
+      const categoria = categorias.find(cat => cat.id === categoriaSeleccionada);
+      const cartasCategoria = categoria && Array.isArray(categoria.cards)
+        ? categoria.cards.map((c) => ({
+            ...c,
+            originalId: c.id,
+            nom: c.nom,
+            imatge: c.imatge,
+            category_id: c.category_id,
+          }))
+        : [];
+      setCartasFiltradas(cartasCategoria);
+    } else {
+      setCartasFiltradas([]);
+    }
+  }, [categoriaSeleccionada, categorias]);
 
   useEffect(() => {
     let intervalo: NodeJS.Timeout;
@@ -104,6 +153,7 @@ export default function Page() {
 
   useEffect(() => {
     if (tiempo === 0) {
+      setFinPartida("derrota");
       const tiempoUsado = 20 - tiempo; // Calcula el tiempo usado
       console.log("¡Has perdido!");
       console.log(`Puntuación final: ${puntuacion}`);
@@ -159,7 +209,30 @@ export default function Page() {
     }
   };
 
+  const barajarCartas = (): Carta[] => {
+    return [...cartasFiltradas, ...cartasFiltradas]
+      .map((personaje) => ({
+        originalId: personaje.id,
+        nom: personaje.nom,
+        imatge: personaje.imatge,
+        category_id: personaje.category_id,
+      }))
+      .sort(() => Math.random() - 0.5)
+      .map((carta, index) => ({ ...carta, id: index }));
+  };
+
   const comenzarJuego = () => {
+    if (!categoriaSeleccionada) {
+      alert("Selecciona una categoría para jugar");
+      return;
+    }
+    // Verifica si la categoría tiene cartas
+    const categoria = categorias.find(cat => cat.id === categoriaSeleccionada);
+    if (!categoria || !categoria.cards || categoria.cards.length === 0) {
+      alert("Esta categoría no tiene cartas disponibles.");
+      return;
+    }
+    setCartasBarajadas(barajarCartas());
     setTiempo(20);
     setTiempoActivo(true);
     setJuegoIniciado(true);
@@ -167,11 +240,23 @@ export default function Page() {
   };
 
   const reiniciarJuego = () => {
-    const nuevaBaraja = [...Tarjetas, ...Tarjetas]
+    if (!categoriaSeleccionada) {
+      setCartasBarajadas([]);
+      setEstadoTarjetas({});
+      setContadores({});
+      setSeleccionadas([]);
+      setPuntuacion(0);
+      setBloqueado(false);
+      setTiempoActivo(false);
+      setJuegoIniciado(false);
+      return;
+    }
+    const nuevaBaraja = [...cartasFiltradas, ...cartasFiltradas]
       .map((personaje) => ({
         originalId: personaje.id,
         nom: personaje.nom,
         imatge: personaje.imatge,
+        category_id: personaje.category_id,
       }))
       .sort(() => Math.random() - 0.5)
       .map((carta, index) => ({ ...carta, id: index }));
@@ -182,15 +267,76 @@ export default function Page() {
     setSeleccionadas([]);
     setPuntuacion(0);
     setBloqueado(false);
-    setTiempoActivo(false); // Detener el tiempo hasta que pulse "Comenzar"
-    setJuegoIniciado(false); // Volver a mostrar el botón de inicio
-    comenzarJuego(); // Reiniciar el juego
+    setTiempoActivo(false);
+    setJuegoIniciado(false);
+    comenzarJuego();
   };
 
   const formatTiempo = (segundos: number) => {
     const minutos = Math.floor(segundos / 60);
     const segs = segundos % 60;
     return `${minutos}:${segs.toString().padStart(2, "0")}`;
+  };
+
+  // Justo antes del return principal, añade este log para depuración:
+  console.log("categorias para el selector:", categorias);
+
+  useEffect(() => {
+    // Solo ejecuta si el juego está iniciado y hay cartas
+    if (
+      juegoIniciado &&
+      cartasBarajadas.length > 0 &&
+      Object.values(estadoTarjetas).length === cartasBarajadas.length &&
+      Object.values(estadoTarjetas).every((estado) => estado)
+    ) {
+      setTiempoActivo(false);
+      setFinPartida("victoria");
+      console.log("¡Has ganado!");
+      console.log(`Puntuación final: ${puntuacion}`);
+      console.log(`Tiempo restante: ${tiempo}`);
+      console.log(`Clics finales: ${contadores}`);
+
+      async function guardarDatosJuego() {
+        const gameId = localStorage.getItem("gameId");
+        const url =
+          "https://laravelm7-luislp-production.up.railway.app/api/games/" +
+          gameId +
+          "/finish";
+        const token = localStorage.getItem("token");
+        const totalClics = Object.values(contadores).reduce((a, b) => a + b, 0);
+        const clicsFinales = totalClics;
+        const respuesta = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            puntuació: puntuacion,
+            duració: 20 - tiempo, // Calcula el tiempo usado
+            clics: clicsFinales,
+          }),
+        });
+        const respuestaJson = await respuesta.json();
+        console.log(respuestaJson);
+      }
+      guardarDatosJuego();
+    }
+  }, [estadoTarjetas]); // Ejecuta cada vez que cambia el estado de las tarjetas
+
+  const cerrarFinPartida = () => {
+    setFinPartida(null);
+    setTiempoActivo(false);
+    setJuegoIniciado(false);
+    setCartasBarajadas([]);
+    setEstadoTarjetas({});
+    setContadores({});
+    setSeleccionadas([]);
+    setPuntuacion(0);
+    setBloqueado(false);
+    setTiempo(20);
+    setCategoriaSeleccionada(null);
+    setCartasFiltradas([]);
   };
 
   return (
@@ -212,10 +358,46 @@ export default function Page() {
           </div>
 
           {!juegoIniciado ? (
-            <div className="flex flex-col items-center justify-center min-h-[300px]">
+            <div className="flex flex-col items-center justify-center min-h-[300px] space-y-6">
+                <div>
+                <label className="block text-lg font-semibold mb-2 text-purple-700">
+                  Selecciona una categoría:
+                </label>
+                <select
+                  className="px-4 py-2 rounded-lg border border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={categoriaSeleccionada !== null ? categoriaSeleccionada : ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCategoriaSeleccionada(value === "" ? null : Number(value));
+                  }}
+                >
+                  <option value="">-- Elige una categoría --</option>
+                  {categorias.map((cat) => (
+                  <option
+                    key={cat.id}
+                    value={cat.id}
+                    disabled={!cat.cards || cat.cards.length === 0}
+                  >
+                    {cat.name}
+                    {!cat.cards || cat.cards.length === 0 ? " (sin cartas)" : ""}
+                  </option>
+                  ))}
+                </select>
+                {/* Mensaje si la categoría seleccionada no tiene cartas */}
+                {categoriaSeleccionada &&
+                  categorias.find((cat) => cat.id === categoriaSeleccionada)?.cards?.length === 0 && (
+                  <div className="mt-2 text-red-600 text-sm">
+                    Esta categoría no tiene cartas disponibles.
+                  </div>
+                  )}
+                </div>
               <button
                 onClick={comenzarJuego}
                 className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-8 py-4 rounded-xl text-2xl font-bold shadow-lg hover:scale-105 transition-transform"
+                disabled={
+                  !categoriaSeleccionada ||
+                  categorias.find((cat) => cat.id === categoriaSeleccionada)?.cards?.length === 0
+                }
               >
                 Comenzar Juego
               </button>
@@ -255,26 +437,37 @@ export default function Page() {
           )}
         </div>
 
-        {tiempo === 0 && (
+        {finPartida && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm text-center space-y-4 animate-fade-in">
               <h2 className="text-2xl font-bold text-purple-700">
-                ¡Tiempo agotado! ⏰
+                {finPartida === "victoria" ? "¡Has ganado! 🎉" : "¡Tiempo agotado! ⏰"}
               </h2>
-              <p className="text-gray-700">Se acabó el tiempo.</p>
-              <p className="text-gray-700">Tiempo: {formatTiempo(tiempo)}</p>
-              <button
-                onClick={reiniciarJuego}
-                className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform"
-              >
-                Volver a jugar
-              </button>
-              <button
-                onClick={() => setTiempoActivo(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:scale-105 transition-transform"
-              >
-                Cerrar
-              </button>
+              <p className="text-gray-700">
+                {finPartida === "victoria"
+                  ? "¡Felicidades, has encontrado todas las parejas!"
+                  : "Se acabó el tiempo."}
+              </p>
+              <p className="text-gray-700">
+                Tiempo: {formatTiempo(tiempo)}
+              </p>
+              <p className="text-gray-700">
+                Puntuación: {puntuacion}
+              </p>
+                <div className="flex flex-col gap-4 mt-6">
+                <button
+                  onClick={reiniciarJuego}
+                  className="bg-gradient-to-r from-purple-600 to-rose-500 text-white px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+                >
+                  Volver a jugar
+                </button>
+                <button
+                  onClick={cerrarFinPartida}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:scale-105 transition-transform"
+                >
+                  Cerrar
+                </button>
+                </div>
             </div>
           </div>
         )}

@@ -158,6 +158,16 @@ export default function Encabezado() {
                       </button>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="relative px-4 py-2.5 text-sm font-medium text-purple-400 transition-all hover:scale-110 duration-300 cursor-pointer"
+                    >
+                      <button onClick={() => router.push("/dashboard")}>
+                        <span className="relative z-10">Dashboard</span>
+                      </button>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
                 </>
               )}
             </NavigationMenuList>
@@ -206,15 +216,48 @@ export default function Encabezado() {
               Sobre Nosotros
             </button>
             {!nombre && (
-              <button
-                onClick={() => router.push("/login")}
-                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10"
-              >
-                Login
-              </button>
+              <>
+                <button
+                  onClick={() => router.push("/login")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => router.push("/registro")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10"
+                >
+                  Registro
+                </button>
+              </>
             )}
             {nombre && (
-              <span className="px-4 py-3 text-sm font-medium text-purple-400"></span>
+              <>
+                <button
+                  onClick={() => router.push("/perfil")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-purple-400 hover:bg-white/10"
+                >
+                  {nombre}
+                </button>
+                <button
+                  onClick={() => router.push("/ranking")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-purple-400 hover:bg-white/10"
+                >
+                  Ranking
+                </button>
+                <button
+                  onClick={() => router.push("/partidas")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-purple-400 hover:bg-white/10"
+                >
+                  Partidas
+                </button>
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-purple-400 hover:bg-white/10"
+                >
+                  Dashboard
+                </button>
+              </>
             )}
           </div>
         </div>

@@ -93,11 +93,11 @@ export default function PerfilPage() {
       <div className="space-y-4">
         <p className="text-gray-700 text-lg">
           <strong className="font-semibold text-blue-600">Nombre:</strong>
-          <span className="text-gray-900">{user.name}</span>
+          <span className="text-gray-900"> {user.name}</span>
         </p>
         <p className="text-gray-700 text-lg">
           <strong className="font-semibold text-blue-600">Email:</strong>
-          <span className="text-gray-900">{user.email}</span>
+          <span className="text-gray-900"> {user.email}</span>
         </p>
         <p className="text-gray-700 text-lg">
           <strong className="font-semibold text-blue-600">Rol:</strong>
