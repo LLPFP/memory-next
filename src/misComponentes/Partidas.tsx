@@ -71,6 +71,7 @@ function Partidas() {
                 alert("Error al añadir partida");
             }
         } catch (error) {
+            console.error('Error al añadir partida:', error);
             alert("Error al añadir partida");
         }
     }
@@ -118,6 +119,7 @@ function Partidas() {
                 alert("Error al editar partida");
             }
         } catch (error) {
+            console.error('Error al editar partida:', error);
             alert("Error al editar partida");
         }
     }
@@ -142,6 +144,7 @@ function Partidas() {
                     alert("Error al eliminar partida");
                 }
             } catch (error) {
+                console.error('Error al eliminar partida:', error);
                 alert("Error al eliminar partida");
             }
         }
