@@ -358,32 +358,32 @@ export default function Page() {
           </div>
 
           {!juegoIniciado ? (
-            <div className="flex flex-col items-center justify-center min-h-[300px] space-y-6">
-                <div>
-                <label className="block text-lg font-semibold mb-2 text-purple-700">
-                  Selecciona una categoría:
-                </label>
-                <select
-                  className="px-4 py-2 rounded-lg border border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  value={categoriaSeleccionada !== null ? categoriaSeleccionada : ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setCategoriaSeleccionada(value === "" ? null : Number(value));
-                  }}
+            <div className="flex flex-col items-center justify-center min-h-[300px] space-y-6 bg-gradient-to-br from-purple-100 via-pink-100 to-rose-100 rounded-2xl shadow-xl p-8 border border-purple-200">
+              <div>
+              <label className="block text-lg font-semibold mb-2 text-purple-700">
+                Selecciona una categoría:
+              </label>
+              <select
+                className="px-4 py-2 rounded-lg border border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/80"
+                value={categoriaSeleccionada !== null ? categoriaSeleccionada : ""}
+                onChange={(e) => {
+                const value = e.target.value;
+                setCategoriaSeleccionada(value === "" ? null : Number(value));
+                }}
+              >
+                <option value="">-- Elige una categoría --</option>
+                {categorias.map((cat) => (
+                <option
+                key={cat.id}
+                value={cat.id}
+                disabled={!cat.cards || cat.cards.length === 0}
                 >
-                  <option value="">-- Elige una categoría --</option>
-                  {categorias.map((cat) => (
-                  <option
-                    key={cat.id}
-                    value={cat.id}
-                    disabled={!cat.cards || cat.cards.length === 0}
-                  >
-                    {cat.name}
-                    {!cat.cards || cat.cards.length === 0 ? " (sin cartas)" : ""}
-                  </option>
-                  ))}
-                </select>
-                {/* Mensaje si la categoría seleccionada no tiene cartas */}
+                {cat.name}
+                {!cat.cards || cat.cards.length === 0 ? " (sin cartas)" : ""}
+                </option>
+                ))}
+              </select>
+              {/* Mensaje si la categoría seleccionada no tiene cartas */}
                 {categoriaSeleccionada &&
                   categorias.find((cat) => cat.id === categoriaSeleccionada)?.cards?.length === 0 && (
                   <div className="mt-2 text-red-600 text-sm">
